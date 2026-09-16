@@ -21,7 +21,7 @@ public:
         );
         RCLCPP_INFO(
             this->get_logger(),
-            "✅ 数据接收节点启动，等待数据..."
+            "数据接收节点启动，等待数据..."
         );
     }
 private:

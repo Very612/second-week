@@ -12,7 +12,7 @@ public:
         srand((unsigned int)time(NULL));
         pub_ = this->create_publisher<std_msgs::msg::Float64>("/raw_data", 10);
         timer_ = this->create_wall_timer(10ms, std::bind(&DataSender::publish_data, this));
-        RCLCPP_INFO(this->get_logger(), "✅ 数据发送节点启动");
+        RCLCPP_INFO(this->get_logger(), "数据发送节点启动");
     }
 private:
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pub_;
