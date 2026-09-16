@@ -1,34 +1,39 @@
 #include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/string.hpp>
+#include <std_msgs/msg/float64.hpp>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
 using namespace std::chrono_literals;
-
-class Talker : public rclcpp::Node
+class DataSender : public rclcpp::Node
 {
 public:
-  Talker() : Node("talker_node")
-  {
-    // 创建发布者，话题名chatter，消息类型String，队列长度10
-    publisher_ = this->create_publisher<std_msgs::msg::String>("chatter", 10);
-    // 定时器：500ms执行一次回调
-    timer_ = this->create_wall_timer(500ms, std::bind(&Talker::timer_callback, this));
-  }
-
+    DataSender() : Node("data_sender")
+    {
+        srand((unsigned int)time(NULL));
+        pub_ = this->create_publisher<std_msgs::msg::Float64>("/raw_data", 10);
+        timer_ = this->create_wall_timer(10ms, std::bind(&DataSender::publish_data, this));
+        RCLCPP_INFO(this->get_logger(), "✅ 数据发送节点启动");
+    }
 private:
-  void timer_callback()
-  {
-    auto msg = std_msgs::msg::String();
-    msg.data = "Hello ROS2!";
-    RCLCPP_INFO(this->get_logger(), "发布消息: %s", msg.data.c_str());
-    publisher_->publish(msg);
-  }
-  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
-  rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pub_;
+    rclcpp::TimerBase::SharedPtr timer_;
+    double t = 0.0;
+    void publish_data()
+    {
+        double signal = 5.0 + 2.0 * sin(t);
+        double noise = (rand() % 100) / 10.0 - 5.0;
+        double raw_data = signal + noise;
+        std_msgs::msg::Float64 msg;
+        msg.data = raw_data;
+        pub_->publish(msg);
+        t += 0.01;
+    }
 };
-
 int main(int argc, char * argv[])
 {
-  rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<Talker>());
-  rclcpp::shutdown();
-  return 0;
+    rclcpp::init(argc, argv);
+    auto node = std::make_shared<DataSender>();
+    rclcpp::spin(node);
+    rclcpp::shutdown();
+    return 0;
 }
