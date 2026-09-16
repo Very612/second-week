@@ -34,7 +34,7 @@ private:
         double raw = msg->data;
         RCLCPP_INFO(
             this->get_logger(),
-            "📥 收到原始数据: %.3lf",
+            "收到原始数据: %.3lf",
             raw
         );
         buffer.push_back(raw);
@@ -51,7 +51,7 @@ private:
         double mean_filtered = sum / buffer.size();
         RCLCPP_INFO(
             this->get_logger(),
-            "📤 均值滤波输出: %.3lf",
+            "均值滤波输出: %.3lf",
             mean_filtered
         );
         std_msgs::msg::Float64 filtered_msg;
