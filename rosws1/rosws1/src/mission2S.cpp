@@ -14,8 +14,7 @@ public:
         dt = 0.001;
         tau_limit = 10.0;
         w_limit = 100.0;
-        sub = this->create_subscription<std_msgs::msg::Float64>(
-            "/command_torque", 10, std::bind(&MotorSim::tau_cb, this, _1));
+        sub = this->create_subscription<std_msgs::msg::Float64>("/command_torque", 10, std::bind(&MotorSim::tau_cb, this, _1));
         w_pub = this->create_publisher<std_msgs::msg::Float64>("/motor_velocity", 10);
         th_pub = this->create_publisher<std_msgs::msg::Float64>("/motor_position", 10);
         timer = this->create_wall_timer(1ms, std::bind(&MotorSim::step, this));
@@ -37,7 +36,6 @@ private:
         auto th_msg = std_msgs::msg::Float64();
         th_msg.data = th;
         th_pub->publish(th_msg);
-
         RCLCPP_INFO(this->get_logger(), "tau:%.3f w:%.3f th:%.3f", tau, w, th);
     }
     double tau, w, th;

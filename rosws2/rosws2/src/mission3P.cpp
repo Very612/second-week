@@ -18,10 +18,8 @@ public:
         integ_limit = 20.0;
         out_limit = 10.0;
         dt = 0.002;
-        tgt_sub = this->create_subscription<std_msgs::msg::Float64>(
-            "/target_vel", 10, std::bind(&PidAdaptive::tgt_cb, this, std::placeholders::_1));
-        act_sub = this->create_subscription<std_msgs::msg::Float64>(
-            "/motor_velocity", 10, std::bind(&PidAdaptive::act_cb, this, std::placeholders::_1));
+        tgt_sub = this->create_subscription<std_msgs::msg::Float64>("/target_vel", 10, std::bind(&PidAdaptive::tgt_cb, this, std::placeholders::_1));
+        act_sub = this->create_subscription<std_msgs::msg::Float64>("/motor_velocity", 10, std::bind(&PidAdaptive::act_cb, this, std::placeholders::_1));
         pub = this->create_publisher<std_msgs::msg::Float64>("/command_torque", 10);
         timer = this->create_wall_timer(2ms, std::bind(&PidAdaptive::calc, this));
     }
@@ -35,7 +33,6 @@ private:
         pe = e;
         integ += e * dt;
         integ = std::clamp(integ, -integ_limit, integ_limit);
-        // 误差大就Kp大，误差小就Ki大
         double er = std::clamp(std::abs(e) / 10.0, 0.0, 1.0);
         double kp = kp_min + (kp_max - kp_min) * er;
         double ki = ki_min + (ki_max - ki_min) * (1.0 - er);
