@@ -4,36 +4,36 @@
 #include <cstdlib>
 #include <ctime>
 using namespace std::chrono_literals;
-class DataSender : public rclcpp::Node
+class DataGen : public rclcpp::Node
 {
 public:
-    DataSender() : Node("data_sender")
+    DataGen() : Node("data_gen"), t(0)
     {
-        srand((unsigned int)time(NULL));
-        pub_ = this->create_publisher<std_msgs::msg::Float64>("/raw_data", 10);
-        timer_ = this->create_wall_timer(10ms, std::bind(&DataSender::publish_data, this));
-        RCLCPP_INFO(this->get_logger(), "数据发送节点启动");
+        srand(time(0));
+        pub = this->create_publisher<std_msgs::msg::Float64>("/raw_data", 10);
+        timer = this->create_wall_timer(10ms, std::bind(&DataGen::send, this));
+        RCLCPP_INFO(this->get_logger(), "发数据的节点启动了");
     }
 private:
-    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pub_;
-    rclcpp::TimerBase::SharedPtr timer_;
-    double t = 0.0;
-    void publish_data()
+    void send()
     {
-        double signal = 5.0 + 2.0 * sin(t);
-        double noise = (rand() % 100) / 10.0 - 5.0;
-        double raw_data = signal + noise;
-        std_msgs::msg::Float64 msg;
-        msg.data = raw_data;
-        pub_->publish(msg);
+        // 5 + 2*sin(t) 再加点噪声
+        double sig = 5 + 2 * sin(t);
+        double noise = (rand() % 100) / 10.0 - 5;
+        auto msg = std_msgs::msg::Float64();
+        msg.data = sig + noise;
+        pub->publish(msg);
         t += 0.01;
     }
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pub;
+    rclcpp::TimerBase::SharedPtr timer;
+    double t;
 };
 int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<DataSender>();
-    rclcpp::spin(node);
+    rclcpp::spin(std::make_shared<DataGen>());
     rclcpp::shutdown();
     return 0;
 }
+
